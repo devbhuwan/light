@@ -1,4 +1,4 @@
-package io.devbhuwan.light.core;
+package io.light.core;
 
 /**
  * <p></p>
