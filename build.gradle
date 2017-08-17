@@ -10,6 +10,7 @@ buildscript {
         classpath "org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}"
         classpath "se.transmode.gradle:gradle-docker:${dockerPluginVersion}"
         classpath "net.ltgt.gradle:gradle-apt-plugin:${aptPluginVersion}"
+        classpath "io.codearte.gradle.nexus:gradle-nexus-staging-plugin:${nexusStagingPluginVersion}"
     }
 
 }
@@ -19,6 +20,7 @@ plugins {
 }
 
 apply from: "$rootDir/gradle/dependencies.gradle"
+apply plugin: 'io.codearte.nexus-staging'
 
 allprojects {
     apply plugin: "idea"
@@ -38,7 +40,7 @@ subprojects {
     apply plugin: "docker"
     apply plugin: "maven-publish"
     apply plugin: "net.ltgt.apt"
-//    apply plugin: 'findbugs'
+    apply plugin: 'findbugs'
     apply plugin: 'project-report'
     apply plugin: 'signing'
 
@@ -48,7 +50,7 @@ subprojects {
         options.encoding = "UTF-8"
     }
 
-    archivesBaseName = "oms-${it.name}"
+//    archivesBaseName = "oms-${it.name}"
 
     sourceSets {
         test {
@@ -57,22 +59,28 @@ subprojects {
     }
 
     dependencies {
-        compile "$appLibs.lombok"
-        compile "$appLibs.commonLang3"
-        compile "$appLibs.groovyAll"
-        compile "$appLibs.guava"
-        compile "$appLibs.immutableValue"
-        compile "$appLibs.jackson"
-        compile "$appLibs.slf4j"
-        compile "$appLibs.h2"
+        compile([
+                "$appLibs.lombok",
+                "$appLibs.commonLang3",
+                "$appLibs.groovyAll",
+                "$appLibs.guava",
+                "$appLibs.immutableValue",
+                "$appLibs.jackson",
+                "$appLibs.slf4j",
+                "$appLibs.h2"
+        ])
 
-        apt "$appLibs.immutableValue"
-        apt "$appLibs.lombok"
+        apt([
+                "$appLibs.immutableValue",
+                "$appLibs.lombok"
+        ])
 
-        testCompile "$appLibs.junit"
-        testCompile "$appLibs.assertj"
-        testCompile "$appLibs.spockCore"
-        testCompile "$appLibs.mutabilitydetector"
+        testCompile([
+                "$appLibs.junit",
+                "$appLibs.assertj",
+                "$appLibs.spockCore",
+                "$appLibs.mutabilitydetector"
+        ])
     }
 
     dependencyManagement {
@@ -135,22 +143,13 @@ subprojects {
         repositories {
             mavenDeployer {
                 beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
-                def console = System.console()
-                def ossrhUsername
-                def ossrhPassword
-                if (console) {
-                    username = console.readLine('> Please enter your ossrhUsername: ')
-                    password = console.readPassword('> Please enter your ossrhPassword: ')
-                } else {
-                    logger.error "Cannot get console."
-                }
 
                 repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
-                    authentication(userName: ossrhUsername, password: ossrhPassword)
+                    authentication(userName: "${ossrhUsername}", password: "${ossrhPassword}")
                 }
 
                 snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
-                    authentication(userName: ossrhUsername, password: ossrhPassword)
+                    authentication(userName: "${ossrhUsername}", password: "${ossrhPassword}")
                 }
 
                 pom.project {
@@ -181,3 +180,10 @@ subprojects {
     }
 
 }
+
+nexusStaging {
+    username = "${nexusUsername}"
+    password = "${nexusPassword}"
+    packageGroup = "${group}"
+}
+
