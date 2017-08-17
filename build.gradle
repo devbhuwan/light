@@ -38,7 +38,7 @@ subprojects {
     apply plugin: "docker"
     apply plugin: "maven-publish"
     apply plugin: "net.ltgt.apt"
-    apply plugin: 'findbugs'
+//    apply plugin: 'findbugs'
     apply plugin: 'project-report'
     apply plugin: 'signing'
 
@@ -135,6 +135,15 @@ subprojects {
         repositories {
             mavenDeployer {
                 beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+                def console = System.console()
+                def ossrhUsername
+                def ossrhPassword
+                if (console) {
+                    username = console.readLine('> Please enter your ossrhUsername: ')
+                    password = console.readPassword('> Please enter your ossrhPassword: ')
+                } else {
+                    logger.error "Cannot get console."
+                }
 
                 repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
                     authentication(userName: ossrhUsername, password: ossrhPassword)
