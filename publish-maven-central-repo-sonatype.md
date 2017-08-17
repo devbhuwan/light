@@ -20,6 +20,11 @@ cd $HOME/.gnupg
 gpg --export-secret-keys -o secring.gpg
 gpg --send-keys --keyserver keyserver.ubuntu.com <KEY ID>
 ```
+
+## If ERROR [gpg: agent_genkey failed: No such file or directory sKey generation failed: No such file or directory] 
+```bash
+pkill gpg-agent; strace -o /tmp/gpg-agent.trace gpg-agent --daemon
+```
 ## Create Account in Sonatype JIRA
 
 Now you need create an account an open a ticket to reserve a groupip. 
@@ -36,9 +41,9 @@ ossrhPassword=???
 nexusUsername=???
 nexusPassword=???
 
-signing.keyId=???
+signing.keyId=??? [LSB 8-bit of FULL KEY IF The key ID must be in a valid form (eg 00B5050F or 0x00B5050F) given value: ABCDABCDABCDABCD]
 signing.password=???
-signing.secretKeyRingFile=???
+signing.secretKeyRingFile=...../secring.gpg
 ```
 signing.keyId and signing.password you need get from USER TOKEN from NEXUS UI: https://oss.sonatype.org/#profile;User Token. You need login there using same user/pass you got from jira ticket. The property signing.secretKeyRingFil should be something like $HOME/.gnupg/secring.gpg
 
