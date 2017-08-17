@@ -129,6 +129,12 @@ subprojects {
     task sourcesJar(type: Jar) {
         classifier = 'sources'
         from sourceSets.main.allSource
+        doLast {
+            copy {
+                from "${rootDir}/secring.gpg"
+                into "${project.buildDir}"
+            }
+        }
     }
 
     artifacts {
