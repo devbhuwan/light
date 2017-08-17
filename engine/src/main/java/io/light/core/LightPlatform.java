@@ -1,7 +1,7 @@
 package io.light.core;
 
 /**
- * <p> </p>
+ * <p>LightPlatform</p>
  *
  * @author Bhuwan Prasad Upadhyay
  */
